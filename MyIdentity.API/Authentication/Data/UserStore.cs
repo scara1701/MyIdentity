@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using MyIdentity.API.Authentication.DTOModels;
 using MyIdentity.API.Authentication.Models;
+using MyIdentity.API.Services;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -16,9 +17,10 @@ namespace MyIdentity.API.Authentication.Data
     {
         private readonly string _connectionString;
 
-        public UserStore(IConfiguration configuration)
+        public UserStore(IConnectionStringService connectionStringService)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection");
+            //_connectionString = configuration.GetConnectionString("DefaultConnection");
+            _connectionString = connectionStringService.GetConnectionString();
         }
 
         public async Task AddToRoleAsync(ApplicationUser user, string roleName, CancellationToken cancellationToken)

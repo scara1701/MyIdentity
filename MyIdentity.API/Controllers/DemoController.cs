@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MyIdentity.API.Services;
 
 namespace MyIdentity.API.Controllers
 {
@@ -7,12 +8,26 @@ namespace MyIdentity.API.Controllers
     [ApiController]
     public class DemoController : ControllerBase
     {
+        private readonly IConnectionStringService _connectionStringService;
+
+        public DemoController(IConnectionStringService connectionStringService)
+        {
+            _connectionStringService = connectionStringService;
+        }
+
         [Authorize(Roles ="Demo")]
         [HttpGet]
         public string GetById()
         {
             //zoek Id van ingelogde gebruiker
             return "Welcome.";
+        }
+
+        [HttpGet]
+        [Route("constring")]
+        public string GetConnectionString()
+        {;
+            return _connectionStringService.GetConnectionString();
         }
     }
 }

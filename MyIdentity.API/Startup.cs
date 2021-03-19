@@ -1,23 +1,19 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using MyIdentity.API.Authentication.Data;
 using MyIdentity.API.Authentication.Models;
+using MyIdentity.API.DataAccess;
+using MyIdentity.API.Internal.DataAccess;
 using MyIdentity.API.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace MyIdentity.API
 {
@@ -43,6 +39,15 @@ namespace MyIdentity.API
             //Gwen - Services
             services.AddTransient<IEmailSender, EmailSender>();
 
+            //Gwen - To resolve connection string based upon site address used by client
+            services.AddTransient<IConnectionStringService, ConnectionStringService>();
+
+            //Gwen - Service to save and retrieve data from sql
+            services.AddTransient<ISqlDataAccess, SqlDataAccess>();
+
+            //Gwen - Service to retrieve/set userdata
+            services.AddTransient<IUserData, UserData>();
+
             //Gwen - Authentication
             services.AddAuthentication(options =>
             {
@@ -65,6 +70,9 @@ namespace MyIdentity.API
                 };
             }
             );
+
+            //Gwen - Needed to recognize url used to access site
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddControllers();
 

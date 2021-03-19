@@ -14,11 +14,11 @@ namespace MyIdentity.API.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
-        public UserController(UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        private readonly IUserData _userData;
+        public UserController(UserManager<ApplicationUser> userManager, IUserData userData)
         {
-            _configuration = configuration;
+            _userData = userData;
             _userManager = userManager;
         }
 
@@ -27,8 +27,7 @@ namespace MyIdentity.API.Controllers
         {
             //zoek Id van ingelogde gebruiker
             string userId = _userManager.GetUserId(User);
-            UserData data = new UserData(_configuration);
-            return data.GetUserById(userId).First();
+            return _userData.GetUserById(userId).First();
         }
     }
 }

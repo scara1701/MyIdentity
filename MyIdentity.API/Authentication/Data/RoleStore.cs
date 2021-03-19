@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using MyIdentity.API.Authentication.Models;
+using MyIdentity.API.Services;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,9 +12,11 @@ namespace MyIdentity.API.Authentication.Data
     public class RoleStore : IRoleStore<ApplicationRole>
     {
         private readonly string _connectionString;
-        public RoleStore(IConfiguration configuration)
+        
+        public RoleStore(IConnectionStringService connectionStringService)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection");
+            //_connectionString = configuration.GetConnectionString("DefaultConnection");
+            _connectionString = connectionStringService.GetConnectionString();
         }
 
         public async Task<IdentityResult> CreateAsync(ApplicationRole role, CancellationToken cancellationToken)

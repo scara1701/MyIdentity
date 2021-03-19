@@ -21,9 +21,11 @@ namespace MyIdentity.API.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly IUserData _userData;
 
-        public AuthenticateController(UserManager<ApplicationUser> userManager, IConfiguration configuration)
+        public AuthenticateController(UserManager<ApplicationUser> userManager, IConfiguration configuration, IUserData userData)
         {
+            _userData = userData;
             _userManager = userManager;
             _configuration = configuration;
         }
@@ -95,8 +97,7 @@ namespace MyIdentity.API.Controllers
                 CreatedDate = DateTime.Now
             };
 
-            UserData data = new UserData(_configuration);
-            bool userCreated = data.CreateUser(dTOUser);
+            bool userCreated = _userData.CreateUser(dTOUser);
             if (!userCreated)
             {
                 await _userManager.DeleteAsync(user);

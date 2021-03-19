@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Configuration;
+using MyIdentity.API.Services;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -8,18 +9,18 @@ using System.Linq;
 namespace MyIdentity.API.Internal.DataAccess
 {
     //prevents direct access from outside the class library, only other classes within the library can use this class.
-    internal class SqlDataAccess
+    internal class SqlDataAccess : ISqlDataAccess
     {
-        private readonly IConfiguration _configuration;
+        private readonly IConnectionStringService _connectionStringService;
 
-        public SqlDataAccess(IConfiguration configuration)
+        public SqlDataAccess(IConnectionStringService connectionStringService)
         {
-            _configuration = configuration;
+            _connectionStringService = connectionStringService;
         }
 
         public string GetConnectionString(string name)
         {
-            return _configuration.GetConnectionString(name);
+            return _connectionStringService.GetConnectionString();
         }
 
         //playing with generics
