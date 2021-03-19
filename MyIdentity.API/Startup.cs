@@ -13,7 +13,9 @@ using MyIdentity.API.Authentication.Models;
 using MyIdentity.API.DataAccess;
 using MyIdentity.API.Internal.DataAccess;
 using MyIdentity.API.Services;
+using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace MyIdentity.API
 {
@@ -40,7 +42,7 @@ namespace MyIdentity.API
             services.AddTransient<IEmailSender, EmailSender>();
 
             //Gwen - To resolve connection string based upon site address used by client
-            services.AddTransient<IConnectionStringService, ConnectionStringService>();
+            services.AddTransient<ITenantService, TenantService>();
 
             //Gwen - Service to save and retrieve data from sql
             services.AddTransient<ISqlDataAccess, SqlDataAccess>();
@@ -63,10 +65,26 @@ namespace MyIdentity.API
                 options.TokenValidationParameters = new TokenValidationParameters()
                 {
                     ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidAudience = Configuration["JWT:ValidAudience"],
-                    ValidIssuer = Configuration["JWT:ValidIssuer"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]))
+                    //ValidateAudience = true,
+                    //ValidAudience = Configuration["JWT:ValidAudience"],
+                    //ValidAudience = Configuration["JWT:Issuer"],
+                    //ValidIssuer = Configuration["JWT:Issuer"],
+                    ValidAudience = services.BuildServiceProvider().GetService<ITenantService>().GetTokenIssuer(),
+                    ValidIssuer = services.BuildServiceProvider().GetService<ITenantService>().GetTokenIssuer(),
+                    //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]))
+                    //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(services.BuildServiceProvider().GetService<ITenantService>().GetTokenSecret()))
+
+                    //Don't know what I am doing here... https://www.carlrippon.com/asp-net-core-web-api-multi-tenant-jwts/
+                    //Does resolve the secret, need to resolve audience and issuer
+                    //AudienceValidator?
+                    //IssuerValidator
+                    IssuerSigningKeyResolver = (string token, SecurityToken securityToken, string kid, TokenValidationParameters validationParameters) =>
+                    {
+                        List<SecurityKey> keys = new List<SecurityKey>();
+                        var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(services.BuildServiceProvider().GetService<ITenantService>().GetTokenSecret()));
+                        keys.Add(signingKey);
+                        return keys;
+                    }
                 };
             }
             );

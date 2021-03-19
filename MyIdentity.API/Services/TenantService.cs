@@ -3,12 +3,12 @@ using Microsoft.Extensions.Configuration;
 
 namespace MyIdentity.API.Services
 {
-    public class ConnectionStringService : IConnectionStringService
+    public class TenantService : ITenantService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IConfiguration _configuration;
 
-        public ConnectionStringService(IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
+        public TenantService(IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
         {
             _httpContextAccessor = httpContextAccessor;
             _configuration = configuration;
@@ -18,6 +18,20 @@ namespace MyIdentity.API.Services
             string host = _httpContextAccessor.HttpContext.Request.Host.Value;
             string constring = _configuration.GetConnectionString(host);
             return constring;
+        }
+
+        public string GetTokenIssuer()
+        {
+            string host = _httpContextAccessor.HttpContext.Request.Host.Value;
+            string issuer = _configuration[$"{host}:Issuer"];
+            return issuer;
+        }
+
+        public string GetTokenSecret()
+        {
+            string host = _httpContextAccessor.HttpContext.Request.Host.Value;
+            string secret = _configuration[$"{host}:Secret"];
+            return secret;
         }
     }
 }

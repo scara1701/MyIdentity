@@ -8,9 +8,9 @@ namespace MyIdentity.API.Controllers
     [ApiController]
     public class DemoController : ControllerBase
     {
-        private readonly IConnectionStringService _connectionStringService;
+        private readonly ITenantService _connectionStringService;
 
-        public DemoController(IConnectionStringService connectionStringService)
+        public DemoController(ITenantService connectionStringService)
         {
             _connectionStringService = connectionStringService;
         }

@@ -11,9 +11,9 @@ namespace MyIdentity.API.Internal.DataAccess
     //prevents direct access from outside the class library, only other classes within the library can use this class.
     internal class SqlDataAccess : ISqlDataAccess
     {
-        private readonly IConnectionStringService _connectionStringService;
+        private readonly ITenantService _connectionStringService;
 
-        public SqlDataAccess(IConnectionStringService connectionStringService)
+        public SqlDataAccess(ITenantService connectionStringService)
         {
             _connectionStringService = connectionStringService;
         }

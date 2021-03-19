@@ -13,7 +13,7 @@ namespace MyIdentity.API.Authentication.Data
     {
         private readonly string _connectionString;
         
-        public RoleStore(IConnectionStringService connectionStringService)
+        public RoleStore(ITenantService connectionStringService)
         {
             //_connectionString = configuration.GetConnectionString("DefaultConnection");
             _connectionString = connectionStringService.GetConnectionString();

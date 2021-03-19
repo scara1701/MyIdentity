@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using MyIdentity.API.Authentication.DTOModels;
 using MyIdentity.API.Authentication.Models;
 using MyIdentity.API.DataAccess;
+using MyIdentity.API.Services;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -22,12 +23,14 @@ namespace MyIdentity.API.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
         private readonly IUserData _userData;
+        private readonly ITenantService _tenantService;
 
-        public AuthenticateController(UserManager<ApplicationUser> userManager, IConfiguration configuration, IUserData userData)
+        public AuthenticateController(UserManager<ApplicationUser> userManager, IConfiguration configuration, IUserData userData, ITenantService tenantService)
         {
             _userData = userData;
             _userManager = userManager;
             _configuration = configuration;
+            _tenantService = tenantService;
         }
 
         [HttpPost]
@@ -51,11 +54,13 @@ namespace MyIdentity.API.Controllers
                     authClaims.Add(new Claim(ClaimTypes.Role, userRole));
                 }
 
-                var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+                var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tenantService.GetTokenSecret()));
 
                 var token = new JwtSecurityToken(
-                    issuer: _configuration["JWT:ValidIssuer"],
-                    audience: _configuration["JWT:ValidAudience"],
+                    //issuer: _configuration["JWT:Issuer"],
+                    //audience: _configuration["JWT:Issuer"],
+                    issuer:_tenantService.GetTokenIssuer(),
+                    audience: _tenantService.GetTokenIssuer(),
                     expires: DateTime.Now.AddHours(3),
                     claims: authClaims,
                     signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
