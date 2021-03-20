@@ -69,8 +69,8 @@ namespace MyIdentity.API
                     //ValidAudience = Configuration["JWT:ValidAudience"],
                     //ValidAudience = Configuration["JWT:Issuer"],
                     //ValidIssuer = Configuration["JWT:Issuer"],
-                    ValidAudience = services.BuildServiceProvider().GetService<ITenantService>().GetTokenIssuer(),
-                    ValidIssuer = services.BuildServiceProvider().GetService<ITenantService>().GetTokenIssuer(),
+                    //////ValidAudience = services.BuildServiceProvider().GetService<ITenantService>().GetTokenIssuer(),
+                    //////ValidIssuer = services.BuildServiceProvider().GetService<ITenantService>().GetTokenIssuer(),
                     //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]))
                     //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(services.BuildServiceProvider().GetService<ITenantService>().GetTokenSecret()))
 
@@ -78,6 +78,15 @@ namespace MyIdentity.API
                     //Does resolve the secret, need to resolve audience and issuer
                     //AudienceValidator?
                     //IssuerValidator
+                    AudienceValidator = (IEnumerable<string> audiences, SecurityToken securityToken, TokenValidationParameters validationParameters) =>
+                    {
+                        if(audiences.FirstOrDefault()== services.BuildServiceProvider().GetService<ITenantService>().GetTokenIssuer())return true;
+                        return false;
+                    },
+                    IssuerValidator = (string issuer, SecurityToken securityToken, TokenValidationParameters validationParameters) =>
+                    {
+                        return services.BuildServiceProvider().GetService<ITenantService>().GetTokenIssuer();
+                    },
                     IssuerSigningKeyResolver = (string token, SecurityToken securityToken, string kid, TokenValidationParameters validationParameters) =>
                     {
                         List<SecurityKey> keys = new List<SecurityKey>();
