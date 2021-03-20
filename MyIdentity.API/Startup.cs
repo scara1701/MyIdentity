@@ -31,8 +31,11 @@ namespace MyIdentity.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //Gwen - Identity
-            services.AddTransient<IUserStore<ApplicationUser>, UserStore>();
+            //Gwen - trial
+            IHttpContextAccessor httpContextAccessor = new HttpContextAccessor();
+            ITenantService tenantService = new TenantService(httpContextAccessor, Configuration);
+        //Gwen - Identity
+        services.AddTransient<IUserStore<ApplicationUser>, UserStore>();
             services.AddTransient<IRoleStore<ApplicationRole>, RoleStore>();
 
             services.AddIdentity<ApplicationUser, ApplicationRole>()
@@ -80,17 +83,20 @@ namespace MyIdentity.API
                     //IssuerValidator
                     AudienceValidator = (IEnumerable<string> audiences, SecurityToken securityToken, TokenValidationParameters validationParameters) =>
                     {
-                        if(audiences.FirstOrDefault()== services.BuildServiceProvider().GetService<ITenantService>().GetTokenIssuer())return true;
+                        //if(audiences.FirstOrDefault()== services.BuildServiceProvider().GetService<ITenantService>().GetTokenIssuer())return true;
+                        if (audiences.FirstOrDefault() == tenantService.GetTokenIssuer()) return true;
                         return false;
                     },
                     IssuerValidator = (string issuer, SecurityToken securityToken, TokenValidationParameters validationParameters) =>
                     {
-                        return services.BuildServiceProvider().GetService<ITenantService>().GetTokenIssuer();
+                        //return services.BuildServiceProvider().GetService<ITenantService>().GetTokenIssuer();
+                        return tenantService.GetTokenIssuer();
                     },
                     IssuerSigningKeyResolver = (string token, SecurityToken securityToken, string kid, TokenValidationParameters validationParameters) =>
                     {
                         List<SecurityKey> keys = new List<SecurityKey>();
-                        var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(services.BuildServiceProvider().GetService<ITenantService>().GetTokenSecret()));
+                        //var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(services.BuildServiceProvider().GetService<ITenantService>().GetTokenSecret()));
+                        var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tenantService.GetTokenSecret()));
                         keys.Add(signingKey);
                         return keys;
                     }
